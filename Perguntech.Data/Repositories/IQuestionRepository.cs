@@ -1,15 +1,16 @@
-using Perguntech.Core.Entities;
+using Perguntech.Core.Domain;
 
 namespace Perguntech.Data.Repositories
 {
     public interface IQuestionRepository
     {
-        Task<IEnumerable<Question>> GetAllQuestionsAsync();
-        Task<Question> GetQuestionByIdAsync(Guid id);
-        Task AddQuestionAsync(Question question);
-        Task UpdateQuestionAsync(Question question);
+        Task<IEnumerable<QuestionDomain>> GetAllQuestionsAsync();
+        Task<QuestionDomain> GetQuestionByIdAsync(Guid id);
+        Task AddQuestionAsync(QuestionDomain question);
+        Task UpdateQuestionAsync(QuestionDomain question);
         Task DeleteQuestionAsync(Guid id);
-        Task<Category> GetCategoryByNameAsync(string categoryName, CancellationToken cancellationToken);
-        Task AddCategoryAsync(Category category);
+        Task<CategoryDomain> GetCategoryByNameAsync(string categoryName, CancellationToken cancellationToken);
+        Task AddCategoryAsync(CategoryDomain category);
+        Task<IEnumerable<QuestionDomain>> GetQuestionsByTitleAsync(string title);
     }
 }

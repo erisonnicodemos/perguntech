@@ -1,18 +1,18 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace Perguntech.Core.Entities
+namespace Perguntech.Core.Domain
 {
-    public class Category
+    public class CategoryDomain
     {
         [BsonId]
         [BsonRepresentation(BsonType.String)]
         public Guid Id { get; set; }
 
-        [BsonElement("CategoryName")]
-        public string CategoryName { get; set; }
+        [BsonElement("name")]
+        public string Name { get; set; }
 
-        [BsonElement("QuestionIds")]
+        [BsonElement("questionIds")]
         public List<string> QuestionIds { get; set; }
     }
 }
