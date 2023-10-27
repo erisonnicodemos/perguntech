@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Perguntech.Core.Entities;
 using Perguntech.Services;
-using System.Threading;
 
 namespace Perguntech.API.Controllers
 {
@@ -11,32 +10,31 @@ namespace Perguntech.API.Controllers
     {
         private readonly QuestionService _service;
 
-
         public QuestionsController(QuestionService service)
         {
-            _service = service;
+            _service = service ?? throw new ArgumentNullException(nameof(service));
         }
 
         [HttpGet]
-        public async Task<IEnumerable<Question>> GetAllQuestions()
-        {
-            return await _service.GetAllQuestionsAsync();
-        }
+        public async Task<ActionResult<IEnumerable<Question>>> GetAllQuestions() => Ok(await _service.GetAllQuestionsAsync());
 
         [HttpGet("{id}")]
-        public async Task<Question> GetQuestionById(Guid id)
+        public async Task<ActionResult<Question>> GetQuestionById(Guid id)
         {
-            return await _service.GetQuestionByIdAsync(id);
+            var question = await _service.GetQuestionByIdAsync(id);
+            if (question == null)
+                return NotFound($"No question found with ID {id}");
+
+            return Ok(question);
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateQuestion(Guid id, Question question)
         {
             if (id != question.Id)
-            {
-                return BadRequest();
-            }
-            await _service.UpdateQuestionAsync(question);
+                return BadRequest("ID mismatch between URL and body.");
+
+            await _service.AddOrUpdateQuestionAsync(question);
             return Ok();
         }
 
@@ -48,50 +46,36 @@ namespace Perguntech.API.Controllers
         }
 
         [HttpGet("categories/{name}")]
-        public async Task<Category> GetCategoryByName(string name, CancellationToken cancellationToken)
+        public async Task<ActionResult<Category>> GetCategoryByName(string name, CancellationToken cancellationToken)
         {
-            return await _service.GetCategoryByNameAsync(name, cancellationToken);
+            var category = await _service.GetCategoryByNameAsync(name, cancellationToken);
+
+            if (category == null)
+                return NotFound($"No category found with name {name}");
+
+            return Ok(category);
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddQuestion(Question question, string categoryName, CancellationToken cancellationToken)
+        public async Task<IActionResult> AddQuestion([FromBody] CreateQuestionModel model, CancellationToken cancellationToken)
         {
-            Category category = await _service.GetCategoryByNameAsync(categoryName, cancellationToken);
+            var categoryIds = new List<string>();
 
-            if (category == null)
+            foreach (var categoryName in model.CategoryNames)
             {
-                category = new Category
+                var category = await _service.GetCategoryByNameAsync(categoryName, cancellationToken);
+                if (category == null)
                 {
-                    CategoryName = categoryName
-                };
-                await _service.AddCategoryAsync(category);
+                    category = await _service.CreateCategoryAsync(categoryName);
+                }
+                categoryIds.Add(category.Id.ToString());
             }
 
-            question.CategoryIds = new List<string> { category.Id.ToString() };
-            await _service.AddQuestionAsync(question);
-
-            return Ok();
-        }
-
-        [HttpPost("AddCategory")]
-        public async Task<IActionResult> AddCategory(string categoryName, CancellationToken cancellationToken)
-        {
-            var existingCategory = await _service.GetCategoryByNameAsync(categoryName, cancellationToken);
-
-            if (existingCategory != null)
-            {
-                return BadRequest("Category already exists.");
-            }
-
-            Category category = new Category
-            {
-                CategoryName = categoryName
-            };
-
-            await _service.AddCategoryAsync(category);
-
-            return Ok();
+            model.Question.CategoryIds = categoryIds;
+            await _service.AddOrUpdateQuestionAsync(model.Question);
+            return CreatedAtAction(nameof(GetQuestionById), new { id = model.Question.Id }, model.Question);
         }
 
     }
+
 }

@@ -9,45 +9,39 @@ namespace Perguntech.Services
 
         public QuestionService(IQuestionRepository repository)
         {
-            _repository = repository;
+            _repository = repository ?? throw new ArgumentNullException(nameof(repository));
         }
 
-        public Task<IEnumerable<Question>> GetAllQuestionsAsync()
+        public Task<IEnumerable<Question>> GetAllQuestionsAsync() => _repository.GetAllQuestionsAsync();
+
+        public Task<Question> GetQuestionByIdAsync(Guid id) => _repository.GetQuestionByIdAsync(id);
+
+        public async Task AddOrUpdateQuestionAsync(Question question)
         {
-            return _repository.GetAllQuestionsAsync();
+            if (question.Id == Guid.Empty)
+            {
+                question.Id = Guid.NewGuid();
+                await _repository.AddQuestionAsync(question);
+            }
+            else
+            {
+                await _repository.UpdateQuestionAsync(question);
+            }
         }
 
-        public Task<Question> GetQuestionByIdAsync(Guid id)
+        public Task DeleteQuestionAsync(Guid id) => _repository.DeleteQuestionAsync(id);
+
+        public async Task<Category> GetCategoryByNameAsync(string categoryName, CancellationToken cancellationToken)
         {
-            return _repository.GetQuestionByIdAsync(id);
+            return await _repository.GetCategoryByNameAsync(categoryName, cancellationToken);
         }
 
-        public Task AddQuestionAsync(Question question)
+        public async Task<Category> CreateCategoryAsync(string categoryName)
         {
-            question.Id = Guid.NewGuid(); 
-            return _repository.AddQuestionAsync(question);
+            var category = new Category { CategoryName = categoryName, Id = Guid.NewGuid() };
+            await _repository.AddCategoryAsync(category);
+            return category;
         }
-
-        public Task UpdateQuestionAsync(Question question)
-        {
-            return _repository.UpdateQuestionAsync(question);
-        }
-
-        public Task DeleteQuestionAsync(Guid id)
-        {
-            return _repository.DeleteQuestionAsync(id);
-        }
-
-        public Task<Category> GetCategoryByNameAsync(string categoryName, CancellationToken cancellationToken)
-        {
-            return _repository.GetCategoryByNameAsync(categoryName, cancellationToken);
-        }
-
-        public Task AddCategoryAsync(Category category)
-        {
-            category.Id = Guid.NewGuid();
-            return _repository.AddCategoryAsync(category);
-        }
-
     }
+
 }
