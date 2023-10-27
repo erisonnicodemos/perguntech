@@ -1,0 +1,50 @@
+# .NET Core
+bin/
+obj/
+out/
+*.suo
+*.user
+*.userosscache
+*.dbmdl
+*.jfm
+*.rsuser
+.vscode/
+*.rptproj.bim.layout
+*.cache
+*.VSCodeBackup
+*.bak
+*.tmp
+*.log
+*.swp
+*.vspscc
+*.vssscc
+.vs/
+
+# Rider, Visual Studio for Mac
+.vscode/
+*.sln.iml
+
+# Windows
+Thumbs.db
+[Dd]esktop.ini
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+
+# Docker
+*.log
+Dockerfile.*.cache
+
+# Temp, cache, and other misc
+*~
+*.swp
+*.swo
+*.orig
+*.bak
+*.cache
+*.retry
+session.vim
+netcoreapp*/
