@@ -61,7 +61,7 @@ namespace Perguntech.API.Controllers
         [HttpPost]
         public async Task<IActionResult> AddQuestion([FromBody] CreateQuestionDomain model, CancellationToken cancellationToken)
         {
-            var categoryIds = new List<string>();
+            var categoryIds = new List<Guid>();
 
             foreach (var categoryName in model.CategoryNames)
             {
@@ -70,7 +70,7 @@ namespace Perguntech.API.Controllers
                 {
                     category = await _service.CreateCategoryAsync(categoryName);
                 }
-                categoryIds.Add(category.Id.ToString());
+                categoryIds.Add(category.Id);
             }
 
             model.Question.CategoryIds = categoryIds;

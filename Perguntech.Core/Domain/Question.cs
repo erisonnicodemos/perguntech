@@ -10,13 +10,13 @@ namespace Perguntech.Core.Domain
         [BsonRepresentation(BsonType.String)]
         public Guid Id { get; set; }
 
-        [BsonElement("questionText")]
+        [BsonElement("question")]
         public string Question { get; set; }
 
-        [BsonElement("answerText")]
+        [BsonElement("answer")]
         public string Answer { get; set; }
 
         [BsonElement("categoryIds")]
-        public List<string> CategoryIds { get; set; }
+        public List<Guid> CategoryIds { get; set; }
     }
 }
