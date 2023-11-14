@@ -22,7 +22,17 @@ namespace Perguntech.API.Controllers
         }
 
         [HttpGet("all")]
-        public async Task<ActionResult<IEnumerable<QuestionDomain>>> GetAllQuestions() => Ok(await _service.GetAllQuestionsAsync());
+        public async Task<ActionResult<PaginatedResult<QuestionDomain>>> GetAllQuestions([FromQuery] int page = 1,[FromQuery] int pageSize = 20,[FromQuery] string search = "")
+        {
+            var (questions, totalItems) = await _service.GetPaginatedQuestionsAsync(page, pageSize, search);
+            var result = new PaginatedResult<QuestionDomain>
+            {
+                Items = questions,
+                TotalItems = totalItems,
+                PageSize = pageSize
+            };
+            return Ok(result);
+        }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<QuestionDomain>> GetQuestionById(Guid id)

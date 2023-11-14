@@ -1,5 +1,6 @@
 using MongoDB.Bson;
 using MongoDB.Driver;
+using MongoDB.Driver.Linq;
 using Perguntech.Core.Domain;
 
 namespace Perguntech.Data.Repositories
@@ -17,16 +18,21 @@ namespace Perguntech.Data.Repositories
             _questions = database.GetCollection<QuestionDomain>(questionCollectionName);
         }
 
-        public async Task<IEnumerable<QuestionDomain>> GetAllQuestionsAsync()
+        public async Task<(IEnumerable<QuestionDomain>, long)> GetPaginatedQuestionsAsync(int page, int pageSize, string search)
         {
-            try
+            var query = _questions.AsQueryable(); 
+
+            if (!string.IsNullOrEmpty(search))
             {
-                return await _questions.Find(question => true).ToListAsync();
+                query = query.Where(q => q.Question.ToLower().Contains(search.ToLower()));
             }
-            catch (Exception ex)
-            {
-                throw new Exception("Error fetching all questions.", ex);
-            }
+
+            var totalItems = await query.CountAsync();
+            var questions = await query.Skip((page - 1) * pageSize)
+                                       .Take(pageSize) 
+                                       .ToListAsync();
+
+            return (questions, totalItems);
         }
 
         public async Task<QuestionDomain> GetQuestionByIdAsync(Guid id)
@@ -89,6 +95,7 @@ namespace Perguntech.Data.Repositories
                 throw new Exception($"Error fetching questions with title: {title}", ex);
             }
         }
+
     }
 
 }

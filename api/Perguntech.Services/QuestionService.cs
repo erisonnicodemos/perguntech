@@ -12,7 +12,10 @@ namespace Perguntech.Services
             _repository = repository ?? throw new ArgumentNullException(nameof(repository));
         }
 
-        public Task<IEnumerable<QuestionDomain>> GetAllQuestionsAsync() => _repository.GetAllQuestionsAsync();
+        public async Task<(IEnumerable<QuestionDomain>, long)> GetPaginatedQuestionsAsync(int page, int pageSize, string search)
+        {
+            return await _repository.GetPaginatedQuestionsAsync(page, pageSize, search);
+        }
 
         public Task<QuestionDomain> GetQuestionByIdAsync(Guid id) => _repository.GetQuestionByIdAsync(id);
 
