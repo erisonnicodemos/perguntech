@@ -9,7 +9,13 @@ const apiClient = axios.create({
   },
 });
 
-export const getQuestions = () => apiClient.get('/all').then(response => response.data);
+export const getPaginatedQuestions = (page, pageSize, search = "") => {
+  let query = `/all?page=${page}&pageSize=${pageSize}`;
+  if (search) {
+    query += `&search=${encodeURIComponent(search)}`;
+  }
+  return apiClient.get(query).then(response => response.data.items);
+};
 
 export const getQuestionById = (id) => apiClient.get(`/${id}`).then(response => response.data);
 

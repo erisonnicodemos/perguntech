@@ -21,12 +21,26 @@ const CreateQuestion = () => {
     editQuestion,
     removeQuestion,
     getAllQuestions,
+    loadQuestions,
+    setCurrentPage,
+    hasMore
   } = useContext(QuestionsContext);
+
   const [selectedQuestion, setSelectedQuestion] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
-    getAllQuestions();
-  }, []);
+    const delayDebounce = setTimeout(() => {
+      getAllQuestions(searchTerm);
+    }, 500);
+
+    return () => clearTimeout(delayDebounce);
+  }, [searchTerm]);
+
+  const handleLoadMore = () => {
+    setCurrentPage((prevPage) => prevPage + 1);
+    loadQuestions();
+  };
 
   return (
     <div className="container mx-auto mt-10">
@@ -52,7 +66,7 @@ const CreateQuestion = () => {
                 htmlFor="question"
                 className="block text-sm font-medium text-gray-700"
               >
-                Pergunta
+                Question
               </label>
               <Field
                 as="textarea"
@@ -71,7 +85,7 @@ const CreateQuestion = () => {
                 htmlFor="answer"
                 className="block text-sm font-medium text-gray-700"
               >
-                Resposta
+                Answer
               </label>
               <Field
                 as="textarea"
@@ -88,14 +102,22 @@ const CreateQuestion = () => {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              className="w-full flex justify-center justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
-              {isSubmitting ? "Salvando..." : "Salvar"}
+              {isSubmitting ? "Saving..." : "Save"}
             </button>
           </Form>
         )}
       </Formik>
-
+      <div className="container flex-auto mx-auto mt-10">
+        <input
+          type="text"
+          placeholder="Search questions..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full flex justify-center mb-4 p-2 border border-gray-300 rounded-md"
+        />
+      </div>
       <div className="mt-8 overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
         <table className="min-w-full divide-y divide-gray-300">
           <thead className="bg-gray-50">
@@ -144,6 +166,16 @@ const CreateQuestion = () => {
           </tbody>
         </table>
       </div>
+      <div className="flex justify-center mt-4 mb-4">
+          {hasMore && (
+            <button
+              onClick={handleLoadMore}
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow-lg transition duration-300 ease-in-out transform hover:scale-105"
+            >
+              Load More
+            </button>
+          )}
+        </div>
     </div>
   );
 };

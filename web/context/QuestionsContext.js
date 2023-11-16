@@ -3,38 +3,67 @@ import {
   searchQuestionsByTitle,
   updateQuestion,
   deleteQuestion,
-  getQuestions
+  getPaginatedQuestions,
 } from "@/services/api";
-import React, { createContext, useState } from "react";
+import React, { createContext, useState, useEffect } from "react";
 
 export const QuestionsContext = createContext();
 
 export const QuestionsProvider = ({ children }) => {
   const [questions, setQuestions] = useState([]);
   const [error, setError] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const pageSize = 5;
 
   const searchQuestions = async (title) => {
     if (title.length > 3) {
       try {
         const results = await searchQuestionsByTitle(title);
         setQuestions(results);
-        setError(""); 
+        setError("");
       } catch (error) {
         setError("Error when find the questions.");
-        setQuestions([]); 
+        setQuestions([]);
       }
     } else {
       setQuestions([]);
     }
   };
 
-  const getAllQuestions = async () => {
+  const loadQuestions = async (search = "") => {
     try {
-      const results = await getQuestions();
-      setQuestions(results);
+      const response = await getPaginatedQuestions(
+        currentPage,
+        pageSize,
+        search
+      );
+      setQuestions((prevQuestions) => [...prevQuestions, ...response]);
+      setError("");
+      
+      setHasMore(response.length === pageSize);
+    } catch (error) {
+      setError("Error when fetching questions.");
+      setQuestions([]);
+    }
+  };
+
+  useEffect(() => {
+    loadQuestions();
+  }, [currentPage]);
+
+  const getAllQuestions = async (search = "") => {
+    try {
+      const response = await getPaginatedQuestions(
+        currentPage,
+        pageSize,
+        search
+      );
+      setQuestions(response);
       setError("");
     } catch (error) {
       setError("Error when find the questions.");
+      setQuestions([]);
     }
   };
 
@@ -62,7 +91,10 @@ export const QuestionsProvider = ({ children }) => {
         editQuestion,
         removeQuestion,
         error,
-        getAllQuestions
+        getAllQuestions,
+        loadQuestions,
+        setCurrentPage,
+        hasMore
       }}
     >
       {children}

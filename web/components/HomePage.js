@@ -7,6 +7,7 @@ const HomePage = () => {
 
   const handleSearchChange = (event) => {
     const title = event.target.value;
+
     setSearchTerm(title);
     searchQuestions(title);
   };
