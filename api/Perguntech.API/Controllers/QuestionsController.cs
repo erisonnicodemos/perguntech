@@ -20,7 +20,7 @@ namespace Perguntech.API.Controllers
         }
 
         [HttpGet("all")]
-        public async Task<ActionResult<PaginatedResult<QuestionDomain>>> GetAllQuestions([FromQuery] int page = 1,[FromQuery] int pageSize = 20,[FromQuery] string search = "")
+        public async Task<ActionResult<PaginatedResult<QuestionDomain>>> GetAllQuestions([FromQuery] int page = 1, [FromQuery] int pageSize = 20, [FromQuery] string search = "")
         {
             var (questions, totalItems) = await _service.GetPaginatedQuestionsAsync(page, pageSize, search);
             var result = new PaginatedResult<QuestionDomain>
@@ -81,9 +81,9 @@ namespace Perguntech.API.Controllers
         public async Task<ActionResult<IEnumerable<QuestionDomain>>> FindQuestion(string title)
         {
 
-            if (title.Length < 3)
+            if (string.IsNullOrEmpty(title))
             {
-                return BadRequest("The search term must be at least 3 words");
+                return BadRequest("The search term cannot be empty");
             }
 
             var questionsFromDb = await _service.GetQuestionsByTitleAsync(title);

@@ -1,15 +1,25 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { QuestionsContext } from "@/context/QuestionsContext";
+import { debounce } from 'lodash';
 
 const HomePage = () => {
   const { questions, searchQuestions, error } = useContext(QuestionsContext);
   const [searchTerm, setSearchTerm] = useState("");
 
+  const debouncedSearch = debounce((title) => {
+    searchQuestions(title);
+  }, 500); 
+
+  useEffect(() => {
+    debouncedSearch(searchTerm);
+    return () => {
+      debouncedSearch.cancel();
+    };
+  }, [searchTerm]);
+
   const handleSearchChange = (event) => {
     const title = event.target.value;
-
     setSearchTerm(title);
-    searchQuestions(title);
   };
 
   return (

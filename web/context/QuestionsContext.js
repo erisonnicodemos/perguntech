@@ -17,7 +17,7 @@ export const QuestionsProvider = ({ children }) => {
   const pageSize = 5;
 
   const searchQuestions = async (title) => {
-    if (title.length > 3) {
+    if (title.length > 2) {
       try {
         const results = await searchQuestionsByTitle(title);
         setQuestions(results);
