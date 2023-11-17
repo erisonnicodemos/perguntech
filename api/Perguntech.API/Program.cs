@@ -17,16 +17,11 @@ builder.Services.AddScoped<IQuestionRepository, QuestionRepository>(provider =>
     return new QuestionRepository(connectionString, databaseName, questionCollectionName);
 });
 
-
-var redisConnectionString = builder.Configuration.GetConnectionString("Redis");
-builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(redisConnectionString));
-
 builder.Services.AddScoped<QuestionService>();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect("localhost"));
-builder.Services.AddSingleton<RedisService>();
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 
 builder.Services.AddCors(options =>

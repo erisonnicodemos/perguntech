@@ -11,13 +11,11 @@ namespace Perguntech.API.Controllers
     public class QuestionsController : ControllerBase
     {
         private readonly QuestionService _service;
-        private readonly RedisService _redisService;
         private readonly IMapper _mapper;
 
-        public QuestionsController(QuestionService questionService, RedisService redisService, IMapper mapper)
+        public QuestionsController(QuestionService questionService, IMapper mapper)
         {
             _service = questionService ?? throw new ArgumentNullException(nameof(questionService));
-            _redisService = redisService ?? throw new ArgumentNullException(nameof(redisService));
             _mapper = mapper;
         }
 
@@ -88,17 +86,10 @@ namespace Perguntech.API.Controllers
                 return BadRequest("The search term must be at least 3 words");
             }
 
-            var cachedQuestions = await _redisService.GetObjectAsync<List<QuestionDomain>>(title);
-
-            if (cachedQuestions != null && cachedQuestions.Any())
-                return Ok(cachedQuestions);
-
             var questionsFromDb = await _service.GetQuestionsByTitleAsync(title);
 
             if (!questionsFromDb.Any())
                 return NotFound($"No questions with the title '{title}' were found.");
-
-            await _redisService.SetObjectAsync(title, questionsFromDb);
 
             return Ok(questionsFromDb);
         }
