@@ -1,7 +1,6 @@
 using Perguntech.Data.Repositories; 
 using Perguntech.Services; 
 using MongoDB.Driver;
-using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,7 +20,6 @@ builder.Services.AddScoped<QuestionService>();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect("localhost"));
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 
 builder.Services.AddCors(options =>
