@@ -1,6 +1,6 @@
 # Perguntech API
 
-Perguntech is a question-and-answer repository where users can manage and search for questions within various categories. The API is built using .NET Core 7, MongoDB, and Redis.
+Perguntech is a tech question-and-answer repository where users can manage and search for questions within various categories. The API is built using .NET Core 7, MongoDB and Client side with Next.Js.
 
 ## Architecture
 
